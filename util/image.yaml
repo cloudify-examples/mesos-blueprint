@@ -1,0 +1,30 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+  - http://www.getcloudify.org/spec/fabric-plugin/1.3.1/plugin.yaml
+  - imports/openstack/blueprint.yaml
+
+  ####################################
+  # BUILD_IMAGE WORKFLOW INPUTS
+  ####################################
+
+node_templates:
+
+  config:
+    type: cloudify.nodes.SoftwareComponent
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        configure:
+          implementation: fabric.fabric_plugin.tasks.run_script
+          inputs:
+            fabric_env:
+              host_string: {get_attribute: [public_ip, floating_ip_address]}
+              user: {get_input: ssh_user}
+              key_filename: {get_input: ssh_keyfile}
+            script_path: scripts/ubuntu14.sh
+      
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: host
+

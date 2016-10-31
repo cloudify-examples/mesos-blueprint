@@ -1,0 +1,122 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
+  - http://www.getcloudify.org/spec/openstack-plugin/1.4/plugin.yaml
+  - http://www.getcloudify.org/spec/diamond-plugin/1.3.4/plugin.yaml
+
+inputs:
+
+  ####################################
+  # INSTALL WORKFLOW INPUTS
+  ####################################
+  image:
+    description: image  # Ubuntu 14.04 image
+    default: ''
+  flavor:
+    description: flavor
+    default: ''
+  ssh_user:
+    description: ssh user
+    default: ubuntu
+  ssh_keyname:
+    description: ssh key name
+    default: ''
+  ssh_keyfile:
+    description: ssh key file name
+    default: ''
+  network_name:
+    description: network name
+    default: ''
+  subnet_name:
+    description: network name
+    default: 
+  external_network_name:
+    description: external network name
+    default: external
+
+dsl_definitions:
+  os_config: &os_config
+    username: ''
+    password: ''
+    tenant_name: ''
+    auth_url: ''
+
+  ####################################
+  # BUILD_IMAGE WORKFLOW INPUTS
+  ####################################
+
+node_templates:
+
+  host:
+    type: cloudify.openstack.nodes.Server
+    properties:
+      agent_config: 
+        install_method: none
+      image: {get_input: image}
+      flavor: {get_input: flavor}
+      management_network_name: {get_input: network_name}
+      openstack_config: *os_config
+    relationships:
+      - type: cloudify.openstack.server_connected_to_keypair
+        target: keypair
+      - type: cloudify.openstack.server_connected_to_port
+        target: port
+      - type: cloudify.openstack.server_connected_to_floating_ip
+        target: public_ip
+
+  public_ip:
+    type: cloudify.openstack.nodes.FloatingIP
+    properties:
+      openstack_config: *os_config
+      floatingip:
+        floating_network_name: {get_input: external_network_name}
+
+
+  keypair:
+    type: cloudify.openstack.nodes.KeyPair
+    properties:
+      openstack_config: *os_config
+      resource_id: {get_input: ssh_keyname}
+      use_external_resource: true
+      private_key_path: {get_input: ssh_keyfile}
+
+  network:
+    type: cloudify.openstack.nodes.Network
+    properties:
+      use_external_resource: true
+      resource_id: {get_input: network_name}
+      openstack_config: *os_config
+
+  subnet:
+    type: cloudify.openstack.nodes.Subnet
+    properties:
+      use_external_resource: true
+      resource_id: {get_input: subnet_name}
+      openstack_config: *os_config
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: network
+
+  port:
+    type: cloudify.openstack.nodes.Port
+    properties:
+      resource_id: server_port
+      openstack_config: *os_config
+    relationships:
+      - type: cloudify.relationships.contained_in
+        target: network
+      - type: cloudify.relationships.depends_on
+        target: subnet
+      - type: cloudify.openstack.port_connected_to_security_group
+        target: secgroup
+
+
+  secgroup:
+    type: cloudify.openstack.nodes.SecurityGroup
+    properties:
+      resource_id: image_secgroup
+      openstack_config: *os_config
+      rules: 
+        - port: 22
+          remote_ip_prefix: 0.0.0.0/0
