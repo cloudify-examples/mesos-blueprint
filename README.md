@@ -21,6 +21,8 @@ Then in the `dsl_definition`, fill in the Openstack credentials:
 
 Once the defaults are filled in, run the `create-image.sh` script.  It simply runs a `cfy local init` followed by an execution of install.  This will produce an image configured with Mesos and Docker.  The process takes a long time.  When complete, create a snapshot from the image, and copy the ID of the snapshot.  Then stand up the Mesos cluster:
 
+### Mesos Cluster Creation
+
 * Edit the `imports/openstack/blueprint.yaml` file inputs defaults as follows:
  * image : the image ID from the image creation above.
  * flavor : the Openstack flavor id.  All Mesos nodes will use this.  It will need to have at least as much disk as the image.
