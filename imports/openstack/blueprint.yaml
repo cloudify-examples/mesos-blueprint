@@ -21,10 +21,6 @@ inputs:
     description: user for agents
     default: ubuntu
 
-  ####################################
-  # BUILD_IMAGE WORKFLOW INPUTS
-  ####################################
-
 node_templates:
 
   master_host:
