@@ -8,8 +8,9 @@ imports:
 inputs:
 
   ####################################
-  # INSTALL WORKFLOW INPUTS
+  # BUILD_IMAGE WORKFLOW INPUTS
   ####################################
+
   image:
     description: image  # Ubuntu 14.04 image
     default: ''
@@ -42,9 +43,6 @@ dsl_definitions:
     tenant_name: ''
     auth_url: ''
 
-  ####################################
-  # BUILD_IMAGE WORKFLOW INPUTS
-  ####################################
 
 node_templates:
 
