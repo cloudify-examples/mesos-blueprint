@@ -2,7 +2,9 @@
 
 ### Mesos Base Image Creation
 
-The Mesos blueprint requires the input of a pre-built Mesos image.  A local mode blueprint is provided for this purpose in the `util/image.yaml` file. An Openstack implementation is supplied.  Clone the repo to a system that has access to the target Openstack cloud, and has a Cloudify context.  Edit the `util/imports/openstack/blueprint.yaml` file, and fill in the default values for:
+The Mesos blueprint requires the input of a pre-built Mesos image. If you are using AWS, you can use a Mesos AMI.
+
+If you need to create a Mesos Image, a local mode blueprint is provided for creating a Mesos image in the `util/image.yaml` file. The example is for Openstack. Clone the repo to a system that has access to the target Openstack cloud, and has a Cloudify context.  Edit the `util/imports/openstack/blueprint.yaml` file, and fill in the default values for:
 
 * image : This should be an existing Ubuntu 14.04 image.
 * flavor : This should be a flavor at least 1x2x20.  More CPU will make the build faster.
@@ -23,6 +25,25 @@ Once the defaults are filled in, run the `create-image.sh` script.  It simply ru
 
 ### Mesos Cluster Creation
 
+#### AWS
+
+* Edit the `inputs/aws.yaml.example` file inputs defaults as follows:
+ * vpc_id : The VPC where your manager controller is.
+ * vpc_cidr_block : The CIDR of that VPC.
+ * public_subnet_id: The subnet of the Mesos master.
+ * public_subnet_cidr: That subnet's CIDR.
+ * private_subnet_id: The subnet of the Mesos slave(s).
+ * private_subnet_cidr: That subnet's CIDR.
+ * ec2_region_name: The AWS region.
+ * ec2_region_endpoint: The AWS API region endpoint.
+ * availability_zone: The AWS  region availability zone.
+ * ami: the AWS flavor id.  All Mesos nodes will use this.
+ * instance_type : the AWS AMI instance type.
+* Install: ```cfy install aws-blueprint.yaml -i inputs/aws.yaml.example -b mesos```
+
+
+#### Openstack
+
 * Edit the `imports/openstack/blueprint.yaml` file inputs defaults as follows:
  * image : the image ID from the image creation above.
  * flavor : the Openstack flavor id.  All Mesos nodes will use this.  It will need to have at least as much disk as the image.
@@ -34,6 +55,9 @@ This will create the Mesos cluster.  The master node is assigned a public ip.  Y
 
 The cluster is configured for auto-healing on the slave nodes.  Kill a slave node using the Openstack UI or API, and the deployment will heal itself after a minute.
 
+
+#### Autoscaling
+
 To see autoscaling in action:
 * get the IP address of the Mesos slave.
 * ssh to the Cloudify manager: `cfy ssh`
@@ -44,4 +68,7 @@ To see autoscaling in action:
 
 In a few minutes, the cluster will scale down to it's original size (one worker) due to the scale down policy in the blueprint.
 
-To tear down the cluster, run `cfy executions start -d <your-deployment-id> -w uninstall`
+
+#### Uninstalling
+
+To tear down the cluster, run `cfy uninstall aws-blueprint.yaml -i inputs/aws.yaml.example -b mesos`

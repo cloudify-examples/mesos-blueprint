@@ -4,12 +4,15 @@ imports:
   - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
   - http://www.getcloudify.org/spec/openstack-plugin/1.4/plugin.yaml
   - http://www.getcloudify.org/spec/diamond-plugin/1.3.4/plugin.yaml
+  - imports/mesos-blueprint.yaml
+  - imports/scale.yaml
 
 inputs:
 
   ####################################
   # INSTALL WORKFLOW INPUTS
   ####################################
+
   image:
     description: image   # prepared mesos image (see image generator)
     default: ''
@@ -17,9 +20,14 @@ inputs:
   flavor:
     description: flavor
     default: ''
+
   agent_user:
     description: user for agents
     default: ubuntu
+
+  mesos_home:
+    description: installation directory
+    default: /home/ubuntu/mesos-0.28.2
 
 node_templates:
 
