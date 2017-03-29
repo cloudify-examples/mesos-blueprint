@@ -71,4 +71,4 @@ In a few minutes, the cluster will scale down to it's original size (one worker)
 
 #### Uninstalling
 
-To tear down the cluster, run `cfy uninstall aws-blueprint.yaml -i inputs/aws.yaml.example -b mesos`
+To tear down the cluster, run `cfy uninstall mesos -p ignore_failure=true`
