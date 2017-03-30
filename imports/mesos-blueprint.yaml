@@ -1,24 +1,3 @@
-tosca_definitions_version: cloudify_dsl_1_3
-
-imports:
-  - http://www.getcloudify.org/spec/cloudify/3.4/types.yaml
-  - http://www.getcloudify.org/spec/openstack-plugin/1.4/plugin.yaml
-  - imports/openstack/blueprint.yaml
-  - imports/scale.yaml
-
-inputs:
-
-  ####################################
-  # INSTALL WORKFLOW INPUTS
-  ####################################
-  mesos_home:
-    description: installation directory
-    default: /home/ubuntu/mesos-0.28.2
-
-  ####################################
-  # BUILD_IMAGE WORKFLOW INPUTS
-  ####################################
-
 node_templates:
 
   master:
